@@ -35,15 +35,17 @@ struct GeneradorCarros* crearGenerador(unsigned char media, unsigned char ambula
 void *generarCarro(void* generadorParam){
 
 	struct GeneradorCarros* generador = (struct GeneradorCarros*) generadorParam;
-	//TODO implement exponential funciton
+	//TODO implement exponential function
+	//TODO implement function to change car type
+	//TODO implement function to change car velocity
 	
 	while(1){
-		struct Carro carro;
+		struct Carro* carro = malloc(sizeof(struct Carro));
 		
-		carro.velocidad = 10;
-		carro.tipo      =  0;
+		carro->velocidad = 10;
+		carro->tipo      =  0;
 	
-		
+		//TODO put mutex lock on entrada
 		agregarCarro(generador->entrada, carro);
 		
 		//Sleep 1 second

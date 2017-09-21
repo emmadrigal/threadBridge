@@ -25,14 +25,16 @@
  *  @brief structure containing the variables for this object
  */
 struct ControladorEntrada{
-	unsigned char tipo;      /**< Type of traffic controller, 0 for traffic light, 1 for traffic officer and 2 for jungle law*/
-	unsigned char tiempo;    /**< Time that the traffic light will stay on either state */
-	unsigned char maxCarros; /**< Max number of cars that the traffic officer will allow through before stopping traffic*/
+	unsigned char tipo;           /**< Type of traffic controller, 0 for traffic light, 1 for traffic officer and 2 for jungle law*/
+	unsigned char tiempo;         /**< Time that the traffic light will stay on either state */
+	unsigned char maxCarros;      /**< Max number of cars that the traffic officer will allow through before stopping traffic*/
 	
-	struct Entrada *entrada; /**< pointer to the entrance being controlled */
-	struct Puente *puente;   /**< pointer to the bridge begin connected */
+	unsigned char carrosAceptados;/**< Cars that have been currently accepted*/
 	
-	//TODO debería saber de que lado está
+	struct Entrada *entrada;      /**< pointer to the entrance being controlled */
+	struct Puente *puente;        /**< pointer to the bridge begin connected */
+	
+	char side;                    /**< Dirección being controlled, -1 is right and 1 is left */
 };
 
 /** @brief Creates the ControladorEntrada object including the objects represented in its struct variables
@@ -44,7 +46,7 @@ struct ControladorEntrada{
  *  @param paramsGen Params for the generation of either side, this include median, % of ambulances and % of radioactive cars
  *  @return pointer to the created structure
  */
-struct ControladorEntrada* createControlador(unsigned char tipo, unsigned char tiempo, unsigned char maxCarros, struct Puente* puente, unsigned char paramsGen[3]);
+struct ControladorEntrada* createControlador(unsigned char tipo, unsigned char tiempo, unsigned char maxCarros, struct Puente* puente, unsigned char paramsGen[3], char lado);
 
 /**
  * @brief Control loop

@@ -30,8 +30,8 @@ struct Puente{
 	int largo;                                   /**< Lenght of the bridge representing how many cars it can hold */
 	struct ControladorEntrada* entradaIzquierda; /**< pointer to the controller on the left side*/
 	struct ControladorEntrada* entradaDerecha;   /**< pointer to the controller on the right side*/
-	char flujo;                                  /**< char indicating the direction of the flux; 0 is no cars on the bridge, 1 is to the right and -1 is to the left*/
-	struct Carro* espacios;                      /**< array holding the cars currently on the bridge*/
+	char flujo;                                  /**< char indicating the direction of the flux; 0 is no cars on the bridge, -1 is to the right and 1 is to the left*/
+	struct Carro** espacios;                      /**< array holding the cars currently on the bridge*/
 };
 
 /** @brief Creates the puente object including the objects represented in its struct variables
@@ -61,7 +61,7 @@ void avanzarCarros(struct Puente* puente);
  * and if the flow is moving in the correct direction
  * 
  * @param puente object to be updated
- * @param direccion direction from which the car is being recieved
+ * @param direccion direction from which the car is being recieved, -1 is from the right and 1 is from the left
  * @param carro car to be added
  *
  * @return 1 if accepted car and 0 if rejected

@@ -26,7 +26,7 @@
  *  @brief structure containing the variables for this object
  */
 struct Entrada{
-	GArray *colaCarros;                /**< Queue of cars waiting in this queue */
+	GSList *colaCarros;                /**< Queue of cars waiting in this queue */
 	unsigned char semaforoEntrada;     /**< Light indicating if currently advence is allowed */
 	struct GeneradorCarros* generador; /**< pointer to the generator adding cars to this entrance */
 };
@@ -42,10 +42,17 @@ struct Entrada* crearEntrada(unsigned char paramsGen[3]);
 
 /** @brief Adds a new car into the queue
  *
- *  @param pointer to the bridge connect to this entrance
- *  @param car being added to this queue
+ *  @param entrada pointer to the bridge connect to this entrance
+ *  @param carro car being added to this queue
  *  @return void
  */
-void agregarCarro(struct Entrada* entrada, struct Carro carro);
+void agregarCarro(struct Entrada* entrada, struct Carro* carro);
+
+/** @brief Gets the first car on the queue
+ *
+ *  @param entrada whose data is being used
+ *  @return car with the highest priority
+ */
+struct Carro* getCarro(struct Entrada* entrada);
 
 #endif
