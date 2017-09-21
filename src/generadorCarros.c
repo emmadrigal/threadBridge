@@ -1,7 +1,53 @@
-#include <controladorEntrada.h>
+/** @file generadorCarros.c
+ *  @brief Implementation for the car generator
+ *
+ * This is the implementation of the car generator
+ * This function is in charge of creting new car and adding them to 
+ * the entrada object
+ *
+ * @author Emmanuel Madrigal
+ * @author Jonatan Chaverri
+ * @author Mauricio Montero
+ *
+ * @bug No known bugs
+ *
+*/
 
-void generarCarro(GeneradorCarros generador){
-	//TODO implement this
+#include <generadorCarros.h>
+
+struct GeneradorCarros* crearGenerador(unsigned char media, unsigned char ambulancias, unsigned char radioactivos, struct Entrada* entrada){
+	struct GeneradorCarros* generador = malloc(sizeof(struct GeneradorCarros));
 	
-	//TODO según la la función de probabilidad agrega un nuevo carro a la cola de entrada.
+	//TODO checkear que lambda sea mayor a 0
+	generador->media = media;
+	
+	//TODO check that this aren't over a 100
+	generador->ambulancias = ambulancias;
+	generador->radioactivos = radioactivos;
+	
+	generador->entrada = entrada;
+	
+	return generador;
+	
+}
+
+//Según la la función de probabilidad agrega un nuevo carro a la cola de entrada.
+void *generarCarro(void* generadorParam){
+
+	struct GeneradorCarros* generador = (struct GeneradorCarros*) generadorParam;
+	//TODO implement exponential funciton
+	
+	while(1){
+		struct Carro carro;
+		
+		carro.velocidad = 10;
+		carro.tipo      =  0;
+	
+		
+		agregarCarro(generador->entrada, carro);
+		
+		//Sleep 1 second
+		usleep(500000);
+	}	
+	
 }

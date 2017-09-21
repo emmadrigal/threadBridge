@@ -5,7 +5,10 @@ CC=gcc
 
 
 all:
-		$(CC) -o bin/$(APP) src/$(SRC)
+		echo "Ejecutable creado"
+
+app:
+		cd src && make
 
 clean:
-		rm bin/$(APP)
+		cd src && make clean
