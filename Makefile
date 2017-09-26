@@ -4,7 +4,7 @@ SRC=main.c
 CC=gcc
 
 
-all:
+all: app
 		echo "Ejecutable creado"
 
 app:

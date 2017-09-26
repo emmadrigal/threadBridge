@@ -39,11 +39,24 @@ void *generarCarro(void* generadorParam){
 	//TODO implement function to change car type
 	//TODO implement function to change car velocity
 	
+	int velocidadMedia = 2;
+	
+	srand(time(NULL));   // should only be called once per thread
+	
 	while(1){
 		struct Carro* carro = malloc(sizeof(struct Carro));
 		
-		carro->velocidad = 10;
-		carro->tipo      =  0;
+		//Generate a number between 0 and 99
+		char percentage = rand() % 100;
+		
+		if(percentage < generador->ambulancias)
+			carro->tipo =  1;
+		else if(percentage >= (100 - generador->radioactivos))
+			carro->tipo =  2;
+		else
+			carro->tipo =  0;
+			
+		carro->velocidad = rand() % (velocidadMedia*2) + 1;
 	
 		//TODO put mutex lock on entrada
 		agregarCarro(generador->entrada, carro);

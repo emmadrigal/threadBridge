@@ -23,6 +23,8 @@
 #include <carro.h>
 
 
+pthread_mutex_t bridge_mutex;
+
 /** 
  *  @brief structure containing the variables for this object
  */
@@ -52,7 +54,7 @@ struct Puente* createPuente(int largo, unsigned char tipo[2], unsigned char tiem
  * @param puente Object that will be controlled
  * @return void
  */
-void avanzarCarros(struct Puente* puente);
+void avanzarCarros(void* puente);
 
 /** @brief Accepts or denies new cars onto the bridge
  *
@@ -67,5 +69,17 @@ void avanzarCarros(struct Puente* puente);
  * @return 1 if accepted car and 0 if rejected
  */
 int recibirCarro(struct Puente* puente, char direccion, struct Carro* carro);
+
+
+/** @brief Asks for a change in the traffic light in order to advance radioactive cars
+ *
+ * If there are radioactive cars are in the queue then they ask for a change from the other side of the bridge
+ * 
+ * @param puente object to be updated
+ * @param direccion direction from which the car is being recieved, -1 is from the right and 1 is from the left
+ *
+ * @return void
+ */
+void askChange(struct Puente* puente, char direccion);
 
 #endif

@@ -19,6 +19,9 @@
 
 #include <unistd.h>
 #include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+
 
 #include <carro.h>
 #include <entrada.h>

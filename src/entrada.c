@@ -18,7 +18,7 @@ struct Entrada* crearEntrada(unsigned char paramsGen[3]){
 	struct Entrada* entrada = malloc(sizeof(struct Entrada));
 	
 	entrada->colaCarros = NULL;
-	entrada->semaforoEntrada = 0;
+	entrada->semaforoEntrada = 1;
 	
 	
 	//TODO initialize the car generator here
@@ -31,11 +31,20 @@ struct Entrada* crearEntrada(unsigned char paramsGen[3]){
 
 
 struct Carro* getCarro(struct Entrada* entrada){
-	return g_slist_nth_data(entrada->colaCarros, 0);
+	//TODO add multiple queues
+	
+	//Only if green light
+	if(entrada->semaforoEntrada)
+		//If there are cars waiting
+		if(g_list_length(entrada->colaCarros) > 0)
+			//Return car
+			return g_slist_nth_data(entrada->colaCarros, 0);
+
+	return 0;
 }
 
 void agregarCarro(struct Entrada* entrada, struct Carro* carro){
 	entrada->colaCarros = g_slist_append (entrada->colaCarros, carro);
 	
-	printf("There are now %d cars waiting\n", g_slist_length (entrada->colaCarros));
+	//printf("There are now %d cars waiting\n", g_slist_length (entrada->colaCarros));
 }

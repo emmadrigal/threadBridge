@@ -27,7 +27,7 @@
  */
 struct Entrada{
 	GSList *colaCarros;                /**< Queue of cars waiting in this queue */
-	unsigned char semaforoEntrada;     /**< Light indicating if currently advence is allowed */
+	unsigned char semaforoEntrada;     /**< Light indicating if currently advence is allowed; 0 is red and 1 is green */
 	struct GeneradorCarros* generador; /**< pointer to the generator adding cars to this entrance */
 };
 

@@ -16,6 +16,7 @@
 #define _CONTROLADORENTADA_H_
 
 #include <stdlib.h>
+#include <time.h>
 
 
 #include <entrada.h>
@@ -30,6 +31,7 @@ struct ControladorEntrada{
 	unsigned char maxCarros;      /**< Max number of cars that the traffic officer will allow through before stopping traffic*/
 	
 	unsigned char carrosAceptados;/**< Cars that have been currently accepted*/
+	unsigned char carrosEnviados; /**< Cars that have been currently sent*/
 	
 	struct Entrada *entrada;      /**< pointer to the entrance being controlled */
 	struct Puente *puente;        /**< pointer to the bridge begin connected */
@@ -57,7 +59,7 @@ struct ControladorEntrada* createControlador(unsigned char tipo, unsigned char t
  * @param ctrl object whose traffic light is being controlled
  * @return void
  */
-void updateSemaforo(struct ControladorEntrada* ctrl);
+void updateSemaforo(void* ctrl);
 
 /**
  * @brief accepts cars from the bridge
@@ -72,23 +74,12 @@ void aceptarCarro(struct ControladorEntrada* ctrl);
 /**
  * @brief This function tries to send a new car onto the bridge
  *
- * Asks the bridge for its current state and tries to advance the cars
+ * Asks the bridge for its current state and tries to periodically advance the cars
  *
  * @param ctrl controler being updated
  * @return void
  */
-void enviarCarro(struct ControladorEntrada* ctrl);
-
-/**
- * @brief Updates the queue
- *
- * This function is used to advance cars in the queue and in
- * case of cars with priority it will move them ahead
- *
- * @param ctrl controler being updated
- * @return void
- */
-void updateCola(struct ControladorEntrada* ctrl);
+void enviarCarro(void* controller);
 
 
 #endif
