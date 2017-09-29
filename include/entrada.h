@@ -27,8 +27,14 @@
  */
 struct Entrada{
 	GSList *colaCarros;                /**< Queue of cars waiting in this queue */
+	GSList *colaAmbulancias;                /**< Queue of cars waiting in this queue */
+	GSList *colaRadioactivos;                /**< Queue of cars waiting in this queue */
 	unsigned char semaforoEntrada;     /**< Light indicating if currently advence is allowed; 0 is red and 1 is green */
 	struct GeneradorCarros* generador; /**< pointer to the generator adding cars to this entrance */
+	
+	struct ControladorEntrada* ctrl;   /**< pointer to the controler of the traffic at this entrance */
+	
+	char side;                         /**< Dirección being controlled, -1 is right and 1 is left */
 };
 
 
@@ -37,7 +43,7 @@ struct Entrada{
  *  @param paramsGen Params for the generation of either side, this include median, % of ambulances and % of radioactive cars
  *  @return pointer to the created structure
  */
-struct Entrada* crearEntrada(unsigned char paramsGen[3]);
+struct Entrada* crearEntrada(unsigned char paramsGen[3], struct Puente* puente, struct ControladorEntrada* controlador);
 
 
 /** @brief Adds a new car into the queue
@@ -54,5 +60,8 @@ void agregarCarro(struct Entrada* entrada, struct Carro* carro);
  *  @return car with the highest priority
  */
 struct Carro* getCarro(struct Entrada* entrada);
+
+
+int buscarCarro(GSList *colaCarros, struct Carro* carro);
 
 #endif

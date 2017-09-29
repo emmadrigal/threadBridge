@@ -15,11 +15,12 @@
 
 #include <generadorCarros.h>
 
-struct GeneradorCarros* crearGenerador(unsigned char media, unsigned char ambulancias, unsigned char radioactivos, struct Entrada* entrada){
+struct GeneradorCarros* crearGenerador(unsigned char media, unsigned char ambulancias, unsigned char radioactivos, struct Entrada* entrada, struct Puente* bridge){
 	struct GeneradorCarros* generador = malloc(sizeof(struct GeneradorCarros));
 	
 	//TODO checkear que lambda sea mayor a 0
 	generador->media = media;
+	generador->puente = bridge;
 	
 	//TODO check that this aren't over a 100
 	generador->ambulancias = ambulancias;
@@ -35,11 +36,10 @@ struct GeneradorCarros* crearGenerador(unsigned char media, unsigned char ambula
 void *generarCarro(void* generadorParam){
 
 	struct GeneradorCarros* generador = (struct GeneradorCarros*) generadorParam;
-	//TODO implement exponential function
-	//TODO implement function to change car type
-	//TODO implement function to change car velocity
+	//TODO implement exponential function for ¿time?
 	
-	int velocidadMedia = 2;
+	//TODO get car velocity from config file
+	int velocidadMedia = 1;
 	
 	srand(time(NULL));   // should only be called once per thread
 	
@@ -57,9 +57,17 @@ void *generarCarro(void* generadorParam){
 			carro->tipo =  0;
 			
 		carro->velocidad = rand() % (velocidadMedia*2) + 1;
+		
+		carro->puente = generador->puente;
+		carro->entrada = generador->entrada;
+		
+		//Inicia fuera de una entrada
+		carro->position = -1;
 	
 		//TODO put mutex lock on entrada
 		agregarCarro(generador->entrada, carro);
+		
+		pthread_create(&(carro->responsibleThread), NULL, avanzar, (void*) carro);
 		
 		//Sleep 1 second
 		usleep(500000);

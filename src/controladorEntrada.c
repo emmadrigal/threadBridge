@@ -18,7 +18,7 @@ struct ControladorEntrada* createControlador(unsigned char tipo, unsigned char t
 	struct ControladorEntrada* controlador = malloc(sizeof(struct ControladorEntrada));
 	
 	controlador->puente  = puente;
-	controlador->entrada = crearEntrada(paramsGen);
+	controlador->entrada = crearEntrada(paramsGen, puente, controlador);
 	controlador->side    = lado;
 	
 	controlador->tipo      = tipo;
@@ -61,9 +61,7 @@ void updateSemaforo(void* entrance){
 				start_t = end_t;
 				
 				//Change the state of the traffic lights
-				ctrl->entrada->semaforoEntrada = ctrl->entrada->semaforoEntrada^1;
-				//TODO this could be a function in entrada or a local variable
-			
+				ctrl->entrada->semaforoEntrada = ctrl->entrada->semaforoEntrada^1;			
 			}
 		}
 		//Traffic Officer
@@ -71,15 +69,22 @@ void updateSemaforo(void* entrance){
 			//If count se excedió
 			if(ctrl->carrosAceptados > ctrl->maxCarros){
 				ctrl->carrosAceptados = 0;
-				//TODO this could be a function in entrada or a local variable
-				ctrl->entrada->semaforoEntrada = 0;
+
+				ctrl->entrada->semaforoEntrada = ctrl->entrada->semaforoEntrada^1;
+				
 			}
-			if(ctrl->carrosEnviados > ctrl->maxCarros){
+			else if(ctrl->carrosEnviados > ctrl->maxCarros){
 				ctrl->carrosEnviados = 0;
-				//TODO this could be a function in entrada or a local variable
-				ctrl->entrada->semaforoEntrada = 1;
+
+				ctrl->entrada->semaforoEntrada = ctrl->entrada->semaforoEntrada^1;
+			
 			}
-		
+			else if(ctrl->puente->flujo == 0){
+				ctrl->carrosAceptados = 0;
+				ctrl->carrosEnviados = 0;
+				
+				ctrl->entrada->semaforoEntrada = ctrl->entrada->semaforoEntrada^1;
+			}
 		}
 		//Jungle Law
 		else if(ctrl->tipo == 2){
@@ -95,26 +100,35 @@ void aceptarCarro(struct ControladorEntrada* ctrl){
 	ctrl->carrosAceptados = ctrl->carrosAceptados + 1;
 }
 
-void enviarCarro(void* controller){
-	struct ControladorEntrada* ctrl = (struct ControladorEntrada*) controller;
+char enviarCarro(struct ControladorEntrada* ctrl, struct Carro* carro){
+	//TODO put mutex around this call to avoid multpli cars
+	char aceptado = recibirCarro(ctrl->puente, ctrl->side, carro);
 
-	while(1){
-		//TODO get this time from config file
-		usleep(500000);
-		
-		struct Carro* carro = getCarro(ctrl->entrada);
-		
-		if(carro != 0){
-			
-			char aceptado = recibirCarro(ctrl->puente, ctrl->side, carro);
-			
-			//FIXME this could be done in a function inside entrada
-			if(aceptado){				
-				ctrl->entrada->colaCarros = g_list_remove(ctrl->entrada->colaCarros, g_list_nth(ctrl->entrada->colaCarros, 0));
-				
-				ctrl->carrosEnviados++;
-			}
+	
+
+	//FIXME this could be done in a function inside entrada
+	if(aceptado){
+		if(carro->tipo == 2)
+			ctrl->entrada->colaRadioactivos = g_list_remove(ctrl->entrada->colaRadioactivos,  carro);
+		else if(carro->tipo == 1)
+			ctrl->entrada->colaAmbulancias = g_list_remove(ctrl->entrada->colaAmbulancias, carro);
+		else if(carro->tipo == 0){
+			ctrl->entrada->colaCarros = g_list_remove(ctrl->entrada->colaCarros, carro);
 		}
+		
+		//Indicar al carro que ahora se encuentra en la primera posición de espera
+		if(ctrl->side == 1){
+			carro->position = 0;
+			carro->direccion = 1;
+		}
+		if(ctrl->side == -1){
+			carro->position = ctrl->puente->largo -1;
+			carro->direccion = -1;
+		}
+			
+		ctrl->carrosEnviados++;
 	}
+	
+	return aceptado;
 	//This could call the update after sending data
 }

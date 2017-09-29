@@ -47,29 +47,6 @@ struct Puente{
  */
 struct Puente* createPuente(int largo, unsigned char tipo[2], unsigned char tiempo[2], unsigned char maxCarros[2], unsigned char paramsGen[6]);
 
-/** @brief Moves the cars along the bridge
- * 
- * This function is handled in a thread and automatically changes the state of the bridge flux and the position of the cars
- * 
- * @param puente Object that will be controlled
- * @return void
- */
-void avanzarCarros(void* puente);
-
-/** @brief Accepts or denies new cars onto the bridge
- *
- * Whenever a traffic controller wants to move a car onto the bridge
- * the ask this function which will check whether there are space on the bridge
- * and if the flow is moving in the correct direction
- * 
- * @param puente object to be updated
- * @param direccion direction from which the car is being recieved, -1 is from the right and 1 is from the left
- * @param carro car to be added
- *
- * @return 1 if accepted car and 0 if rejected
- */
-int recibirCarro(struct Puente* puente, char direccion, struct Carro* carro);
-
 
 /** @brief Asks for a change in the traffic light in order to advance radioactive cars
  *
@@ -81,5 +58,8 @@ int recibirCarro(struct Puente* puente, char direccion, struct Carro* carro);
  * @return void
  */
 void askChange(struct Puente* puente, char direccion);
+
+
+void chequerEstado(void* bridge);
 
 #endif

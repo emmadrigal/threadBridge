@@ -79,7 +79,7 @@ void aceptarCarro(struct ControladorEntrada* ctrl);
  * @param ctrl controler being updated
  * @return void
  */
-void enviarCarro(void* controller);
+char enviarCarro(struct ControladorEntrada* ctrl, struct Carro* carro);
 
 
 #endif
