@@ -40,7 +40,7 @@ struct ControladorEntrada* createControlador(unsigned char tipo, unsigned char t
 }
 
 
-void updateSemaforo(void* entrance){
+void* updateSemaforo(void* entrance){
 	struct ControladorEntrada* ctrl = (struct ControladorEntrada*) entrance;
 	
 	clock_t start_t, end_t;
@@ -61,22 +61,33 @@ void updateSemaforo(void* entrance){
 				start_t = end_t;
 				
 				//Change the state of the traffic lights
-				ctrl->entrada->semaforoEntrada = ctrl->entrada->semaforoEntrada^1;			
+				ctrl->entrada->semaforoEntrada = ctrl->entrada->semaforoEntrada^1;	
 			}
 		}
 		//Traffic Officer
 		else if(ctrl->tipo == 1){
+		
+		/*
+			if(ctrl->side == 1)
+				printf("izquierda\n\taceptados: %d\t enviados: %d\n", ctrl->carrosAceptados, ctrl->carrosEnviados);
+			else
+				printf("derecha\n\taceptados: %d\t enviados: %d\n", ctrl->carrosAceptados, ctrl->carrosEnviados);
+			*/	
+			
+			
 			//If count se excedió
-			if(ctrl->carrosAceptados > ctrl->maxCarros){
+			if(ctrl->carrosAceptados >= ctrl->maxCarros){
 				ctrl->carrosAceptados = 0;
 
 				ctrl->entrada->semaforoEntrada = ctrl->entrada->semaforoEntrada^1;
 				
+				
 			}
-			else if(ctrl->carrosEnviados > ctrl->maxCarros){
+			else if(ctrl->carrosEnviados >= ctrl->maxCarros){
 				ctrl->carrosEnviados = 0;
 
 				ctrl->entrada->semaforoEntrada = ctrl->entrada->semaforoEntrada^1;
+				
 			
 			}
 			else if(ctrl->puente->flujo == 0){
@@ -96,24 +107,21 @@ void updateSemaforo(void* entrance){
 }
 
 void aceptarCarro(struct ControladorEntrada* ctrl){
-	//TODO put mutex lock on this
-	ctrl->carrosAceptados = ctrl->carrosAceptados + 1;
+	//TODO put mutex lock on this?
+	ctrl->carrosAceptados++;
 }
 
 char enviarCarro(struct ControladorEntrada* ctrl, struct Carro* carro){
-	//TODO put mutex around this call to avoid multpli cars
 	char aceptado = recibirCarro(ctrl->puente, ctrl->side, carro);
-
-	
 
 	//FIXME this could be done in a function inside entrada
 	if(aceptado){
 		if(carro->tipo == 2)
-			ctrl->entrada->colaRadioactivos = g_list_remove(ctrl->entrada->colaRadioactivos,  carro);
+			ctrl->entrada->colaRadioactivos = g_slist_remove(ctrl->entrada->colaRadioactivos,  carro);
 		else if(carro->tipo == 1)
-			ctrl->entrada->colaAmbulancias = g_list_remove(ctrl->entrada->colaAmbulancias, carro);
+			ctrl->entrada->colaAmbulancias = g_slist_remove(ctrl->entrada->colaAmbulancias, carro);
 		else if(carro->tipo == 0){
-			ctrl->entrada->colaCarros = g_list_remove(ctrl->entrada->colaCarros, carro);
+			ctrl->entrada->colaCarros = g_slist_remove(ctrl->entrada->colaCarros, carro);
 		}
 		
 		//Indicar al carro que ahora se encuentra en la primera posición de espera
@@ -130,5 +138,4 @@ char enviarCarro(struct ControladorEntrada* ctrl, struct Carro* carro){
 	}
 	
 	return aceptado;
-	//This could call the update after sending data
 }

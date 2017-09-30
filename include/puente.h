@@ -33,7 +33,9 @@ struct Puente{
 	struct ControladorEntrada* entradaIzquierda; /**< pointer to the controller on the left side*/
 	struct ControladorEntrada* entradaDerecha;   /**< pointer to the controller on the right side*/
 	char flujo;                                  /**< char indicating the direction of the flux; 0 is no cars on the bridge, -1 is to the right and 1 is to the left*/
-	struct Carro** espacios;                      /**< array holding the cars currently on the bridge*/
+	struct Carro** espacios;                     /**< array holding the cars currently on the bridge*/
+	
+	pthread_mutex_t puenteLock;					 /**< Lock for the current bridge*/
 };
 
 /** @brief Creates the puente object including the objects represented in its struct variables
@@ -60,6 +62,6 @@ struct Puente* createPuente(int largo, unsigned char tipo[2], unsigned char tiem
 void askChange(struct Puente* puente, char direccion);
 
 
-void chequerEstado(void* bridge);
+void* chequearEstado(void* bridge);
 
 #endif

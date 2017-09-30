@@ -39,14 +39,14 @@ struct Carro* getCarro(struct Entrada* entrada){
 	
 	//Only if green light
 	if(entrada->semaforoEntrada){
-		if(g_list_length(entrada->colaRadioactivos) > 0)
+		if(g_slist_length(entrada->colaRadioactivos) > 0)
 			//Return radioactive car
 			return g_slist_nth_data(entrada->colaRadioactivos, 0);
-		if(g_list_length(entrada->colaAmbulancias) > 0)
+		if(g_slist_length(entrada->colaAmbulancias) > 0)
 			//Return ambulance
 			return g_slist_nth_data(entrada->colaAmbulancias, 0);
 		//If there are cars waiting
-		if(g_list_length(entrada->colaCarros) > 0)
+		if(g_slist_length(entrada->colaCarros) > 0)
 			//Return car
 			return g_slist_nth_data(entrada->colaCarros, 0);
 	}
@@ -58,9 +58,9 @@ void agregarCarro(struct Entrada* entrada, struct Carro* carro){
 	if(carro->tipo == 0)
 		entrada->colaCarros = g_slist_append (entrada->colaCarros, carro);
 	else if(carro->tipo == 1)
-		entrada->colaCarros = g_slist_append (entrada->colaAmbulancias, carro);
+		entrada->colaAmbulancias = g_slist_append (entrada->colaAmbulancias, carro);
 	else if(carro->tipo == 2)
-		entrada->colaCarros = g_slist_append (entrada->colaRadioactivos, carro);
+		entrada->colaRadioactivos = g_slist_append (entrada->colaRadioactivos, carro);
 	
 }
 

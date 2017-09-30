@@ -18,9 +18,9 @@
 #include <stdlib.h>
 #include <time.h>
 
-
-#include <entrada.h>
 #include <puente.h>
+#include <entrada.h>
+
 
 /** 
  *  @brief structure containing the variables for this object
@@ -59,7 +59,7 @@ struct ControladorEntrada* createControlador(unsigned char tipo, unsigned char t
  * @param ctrl object whose traffic light is being controlled
  * @return void
  */
-void updateSemaforo(void* ctrl);
+void* updateSemaforo(void* ctrl);
 
 /**
  * @brief accepts cars from the bridge

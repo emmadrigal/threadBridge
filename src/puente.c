@@ -25,6 +25,7 @@
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
 
+
 struct Puente* createPuente(int largo, unsigned char tipo[2], unsigned char tiempo[2], unsigned char maxCarros[2], unsigned char paramsGen[6]){
 	struct Puente* puente = malloc(sizeof(struct Puente));
 	puente->largo = largo;
@@ -39,7 +40,7 @@ struct Puente* createPuente(int largo, unsigned char tipo[2], unsigned char tiem
 	return puente;
 }
 
-void chequerEstado(void* bridge){
+void* chequearEstado(void* bridge){
 	struct Puente* puente = (struct Puente*) bridge;
 	
 
@@ -56,6 +57,12 @@ void chequerEstado(void* bridge){
 		if(carros == 0)
 			puente->flujo = 0;
 		
+		//printf("Hay %d carros en el puente\n", carros);
+		
+		if(puente->entradaIzquierda->entrada->semaforoEntrada == 1)
+			printf(ANSI_COLOR_GREEN"X"ANSI_COLOR_RESET);
+		else
+			printf(ANSI_COLOR_RED"X"ANSI_COLOR_RESET);
 		
 		for(int i = 0; i < puente->largo; i++){
 			if(puente->espacios[i] != 0){
@@ -69,7 +76,26 @@ void chequerEstado(void* bridge){
 			else
 				printf("0");
 		}
+		
+		if(puente->entradaDerecha->entrada->semaforoEntrada == 1)
+			printf(ANSI_COLOR_GREEN"X"ANSI_COLOR_RESET);
+		else
+			printf(ANSI_COLOR_RED"X"ANSI_COLOR_RESET);
+		
 		printf("\n");
+		/*
+		printf("izquierda\n\taceptados: %d\t enviados: %d\n", puente->entradaIzquierda->carrosAceptados, puente->entradaIzquierda->carrosEnviados);
+		printf("derecha\n\taceptados: %d\t enviados: %d\n", puente->entradaDerecha->carrosAceptados, puente->entradaDerecha->carrosEnviados);
+		*/
+		/*
+		printf("Entrada izquierda-> carros: %d\t ambulancias: %d\t radioactivos %d\n", g_slist_length(puente->entradaIzquierda->entrada->colaCarros), g_slist_length(puente->entradaIzquierda->entrada->colaAmbulancias), g_slist_length(puente->entradaIzquierda->entrada->colaRadioactivos));
+		
+		printf("Entrada derecha-> carros: %d\t ambulancias: %d\t radioactivos %d\n\n", g_slist_length(puente->entradaDerecha->entrada->colaCarros), g_slist_length(puente->entradaDerecha->entrada->colaAmbulancias), g_slist_length(puente->entradaDerecha->entrada->colaRadioactivos));
+		*/
+		
+
+		
+		
 	}
 }
 
@@ -81,6 +107,12 @@ int min(int a, int b){
 
 
 int recibirCarro(struct Puente* puente, char direccion, struct Carro* carro){
+
+	//Only one car can try to enter at the time
+	pthread_mutex_lock(&(puente->puenteLock));
+	
+	int out = 0;
+
 	if(puente->flujo == 0){//Si no hay carros en el puente
 		//Si se recibe un carro de la derecha
 		if(direccion == -1){
@@ -92,27 +124,31 @@ int recibirCarro(struct Puente* puente, char direccion, struct Carro* carro){
 			puente->espacios[0] = carro;
 			puente->flujo = 1;
 		}
-		return 1;
+		out = 1;
 	}
 			
 	//Hay carros llendo en la otra dirección
 	else if(puente->flujo == direccion){
 		//Carros moviendose de izquierda a derecha
-		if(puente->flujo == 1)
+		if(puente->flujo == -1){
 			//Cuando se encuentre el 1er carro en la calle
 			if(puente->espacios[0] != 0)
-					return 1;
+				puente->espacios[0] = carro;
+			
+		}
 		
-		if(puente->flujo == -1)
+		if(puente->flujo == 1){
 			//Cuando se encuentre el 1er carro en la calle
-			if(puente->espacios[puente->largo] != 0)
-					return 1;
+			if(puente->espacios[puente->largo -1] != 0)
+					puente->espacios[puente->largo -1] = carro;
+		}
+		out =  1;
 	}
 	
-	//Chequear si el primer espacio está vacio
-	else{
-		return 0;
-	}
+	//Chequear si el primer espacio está vacio se deja en valor default de 0
+	pthread_mutex_unlock(&(puente->puenteLock));
+	
+	return out;
 }
 
 

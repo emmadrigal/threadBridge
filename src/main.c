@@ -21,17 +21,14 @@
 #include <puente.h>
 
 int main(int argc, char** argv){
-	printf("Hello World!!!\n");
-
-	
     pthread_t threads[7];
 
 	//TODO get values from config file
-	unsigned char tipo[2] = {0,0};
-	unsigned char tiempo[2] = {5,5};
+	unsigned char tipo[2] = {2,2};
+	unsigned char tiempo[2] = {10,10};
 	unsigned char maxCarros[2] = {8,6};
 	unsigned char paramsGen[6] = {1,2,3,4,5,6};
-	int largo = 20;
+	int largo = 10;
 	
 	struct Puente* puente = createPuente(largo, tipo, tiempo, maxCarros, paramsGen);
 	
@@ -43,7 +40,7 @@ int main(int argc, char** argv){
 	pthread_create(&threads[3], NULL, updateSemaforo, (void*) puente->entradaDerecha);
 	
 	
-	pthread_create(&threads[4], NULL, chequerEstado, (void*) puente);
+	pthread_create(&threads[4], NULL, chequearEstado, (void*) puente);
 	
     
     usleep(180000000);
