@@ -57,8 +57,6 @@ void* chequearEstado(void* bridge){
 		if(carros == 0)
 			puente->flujo = 0;
 		
-		//printf("Hay %d carros en el puente\n", carros);
-		
 		if(puente->entradaIzquierda->entrada->semaforoEntrada == 1)
 			printf(ANSI_COLOR_GREEN"X"ANSI_COLOR_RESET);
 		else

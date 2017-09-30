@@ -24,10 +24,10 @@ int main(int argc, char** argv){
     pthread_t threads[7];
 
 	//TODO get values from config file
-	unsigned char tipo[2] = {2,2};
+	unsigned char tipo[2] = {1,1};
 	unsigned char tiempo[2] = {10,10};
 	unsigned char maxCarros[2] = {8,6};
-	unsigned char paramsGen[6] = {1,2,3,4,5,6};
+	unsigned char paramsGen[6] = {5,2,3,6,2,3};
 	int largo = 10;
 	
 	struct Puente* puente = createPuente(largo, tipo, tiempo, maxCarros, paramsGen);

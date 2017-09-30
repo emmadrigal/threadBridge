@@ -36,41 +36,54 @@ struct GeneradorCarros* crearGenerador(unsigned char media, unsigned char ambula
 void *generarCarro(void* generadorParam){
 
 	struct GeneradorCarros* generador = (struct GeneradorCarros*) generadorParam;
-	//TODO implement exponential function for ¿time?
-	
 	//TODO get car velocity from config file
 	int velocidadMedia = 1;
 	
 	srand(time(NULL));   // should only be called once per thread
 	
+	float commulativeProv = 0.0f;
+	int waitedTime = 0;
+	
 	while(1){
 		struct Carro* carro = malloc(sizeof(struct Carro));
 		
-		//Generate a number between 0 and 99
-		char percentage = rand() % 100;
+		commulativeProv += exp(-1*waitedTime/(generador->media))/(generador->media);
 		
-		if(percentage < generador->ambulancias)
-			carro->tipo =  1;
-		else if(percentage >= (100 - generador->radioactivos))
-			carro->tipo =  2;
-		else
-			carro->tipo =  0;
+		//Generate a number between 1 and 100
+		char percentageTime = rand() % 100 + 1;
+		
+		if(commulativeProv*100 > percentageTime	){
+			commulativeProv = 0.0f;
+			waitedTime      =    0;
 			
-		carro->velocidad = rand() % (velocidadMedia*2) + 1;
+			//Generate a number between 0 and 99
+			char percentageCar = rand() % 100;
+			
+			if(percentageCar < generador->ambulancias)
+				carro->tipo =  1;
+			else if(percentageCar >= (100 - generador->radioactivos))
+				carro->tipo =  2;
+			else
+				carro->tipo =  0;
+			
+			carro->velocidad = rand() % (velocidadMedia*2) + 1;
 		
-		carro->puente = generador->puente;
-		carro->entrada = generador->entrada;
+			carro->puente = generador->puente;
+			carro->entrada = generador->entrada;
 		
-		//Inicia fuera de una entrada
-		carro->position = -1;
+			//Inicia fuera en una entrada
+			carro->position = -1;
 	
-		//TODO put mutex lock on entrada
-		agregarCarro(generador->entrada, carro);
+			agregarCarro(generador->entrada, carro);
 		
-		pthread_create(&(carro->responsibleThread), NULL, avanzar, (void*) carro);
+			pthread_create(&(carro->responsibleThread), NULL, avanzar, (void*) carro);
+		}
+		else{
+			waitedTime++;
+		}
 		
-		//Sleep 1 second
-		usleep(500000);
+		//Every second
+		usleep(1000000);
 	}	
 	
 }
