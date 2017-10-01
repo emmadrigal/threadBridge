@@ -1,0 +1,4 @@
+installation of libconfig in Ubuntu 16.04 is made by the command:
+$ sudo apt-get install libconfig8-dev
+
+glib should be already installed

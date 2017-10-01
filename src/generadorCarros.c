@@ -15,7 +15,7 @@
 
 #include <generadorCarros.h>
 
-struct GeneradorCarros* crearGenerador(unsigned char media, unsigned char ambulancias, unsigned char radioactivos, struct Entrada* entrada, struct Puente* bridge){
+struct GeneradorCarros* crearGenerador(int media, int ambulancias, int radioactivos, struct Entrada* entrada, struct Puente* bridge){
 	struct GeneradorCarros* generador = malloc(sizeof(struct GeneradorCarros));
 	
 	//TODO checkear que lambda sea mayor a 0
@@ -27,6 +27,8 @@ struct GeneradorCarros* crearGenerador(unsigned char media, unsigned char ambula
 	generador->radioactivos = radioactivos;
 	
 	generador->entrada = entrada;
+	
+	pthread_create(&(generador->responsibleThread), NULL, generarCarro, (void*) generador);
 	
 	return generador;
 	

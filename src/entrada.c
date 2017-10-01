@@ -14,7 +14,7 @@
 
 #include <entrada.h>
 
-struct Entrada* crearEntrada(unsigned char paramsGen[3], struct Puente* puente, struct ControladorEntrada*  controlador){
+struct Entrada* crearEntrada(int paramsGen[3], struct Puente* puente, struct ControladorEntrada*  controlador){
 	struct Entrada* entrada = malloc(sizeof(struct Entrada));
 	
 	entrada->colaCarros       = NULL;
@@ -28,7 +28,6 @@ struct Entrada* crearEntrada(unsigned char paramsGen[3], struct Puente* puente, 
 	//TODO initialize the car generator here
 	
 	entrada->generador = crearGenerador(paramsGen[0], paramsGen[1], paramsGen[2], entrada, puente);
-
 
 	return entrada;
 }

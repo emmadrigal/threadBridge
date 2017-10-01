@@ -22,8 +22,8 @@
 #include <controladorEntrada.h>
 #include <carro.h>
 
-
-pthread_mutex_t bridge_mutex;
+//Solo un puente puede imprimir a la vez
+pthread_mutex_t printLock;
 
 /** 
  *  @brief structure containing the variables for this object
@@ -35,6 +35,9 @@ struct Puente{
 	char flujo;                                  /**< char indicating the direction of the flux; 0 is no cars on the bridge, -1 is to the right and 1 is to the left*/
 	struct Carro** espacios;                     /**< array holding the cars currently on the bridge*/
 	
+	int id;
+	
+	pthread_t responsibleThread; /**< Thread in charge of this object */
 	pthread_mutex_t puenteLock;					 /**< Lock for the current bridge*/
 };
 
@@ -47,21 +50,26 @@ struct Puente{
  *  @param paramsGen Params for the generation of either side, this include median, % of ambulances and % of radioactive cars
  *  @return pointer to the created structure
  */
-struct Puente* createPuente(int largo, unsigned char tipo[2], unsigned char tiempo[2], unsigned char maxCarros[2], unsigned char paramsGen[6]);
+struct Puente* createPuente(int largo, int tipo[2], int tiempo[2], int maxCarros[2], int paramsGen[6], int id);
 
+
+/** @brief Iterates through the bridge and sets its state to empty if that's the case
+ *
+ *	This function is also in charge of printing the data to the terminal
+ *
+ * @param bridge to be monitored
+ * @return void
+ */
+void* chequearEstado(void* bridge);
 
 /** @brief Asks for a change in the traffic light in order to advance radioactive cars
  *
  * If there are radioactive cars are in the queue then they ask for a change from the other side of the bridge
  * 
- * @param puente object to be updated
- * @param direccion direction from which the car is being recieved, -1 is from the right and 1 is from the left
- *
+ * @param puente whose entrances are going to be changed
  * @return void
  */
-void askChange(struct Puente* puente, char direccion);
+void askSemaforo(struct Puente* puente);
 
-
-void* chequearEstado(void* bridge);
 
 #endif

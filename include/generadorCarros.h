@@ -31,12 +31,14 @@
  *  @brief structure containing the variables for this object
  */
 struct GeneradorCarros{
-	unsigned char media;        /**< Median for the exponential distribution of the generation time*/
-	unsigned char ambulancias;  /**< Percentage of ambulances */
-	unsigned char radioactivos; /**< Percentage of radioactive cars */
+	int media;         /**< Median for the exponential distribution of the generation time*/
+	int ambulancias;   /**< Percentage of ambulances */
+	int radioactivos;  /**< Percentage of radioactive cars */
 	
 	struct Entrada* entrada;
 	struct Puente* puente;
+	
+	pthread_t responsibleThread; /**< Thread in charge of this object */
 };
 
 /** @brief Creates the GeneradorCarros object
@@ -47,7 +49,7 @@ struct GeneradorCarros{
  *  @param entrada pointer to the entrance where the cars will be added
  *  @return pointer to the created structure
  */
-struct GeneradorCarros* crearGenerador(unsigned char media, unsigned char ambulancias, unsigned char radioactivos, struct Entrada* entrada, struct Puente* bridge);
+struct GeneradorCarros* crearGenerador(int media, int ambulancias, int radioactivos, struct Entrada* entrada, struct Puente* bridge);
 
 /** @brief generates new cars into an entrance
  *

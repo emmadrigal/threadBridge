@@ -43,7 +43,7 @@ struct Entrada{
  *  @param paramsGen Params for the generation of either side, this include median, % of ambulances and % of radioactive cars
  *  @return pointer to the created structure
  */
-struct Entrada* crearEntrada(unsigned char paramsGen[3], struct Puente* puente, struct ControladorEntrada* controlador);
+struct Entrada* crearEntrada(int paramsGen[3], struct Puente* puente, struct ControladorEntrada* controlador);
 
 
 /** @brief Adds a new car into the queue
@@ -61,7 +61,12 @@ void agregarCarro(struct Entrada* entrada, struct Carro* carro);
  */
 struct Carro* getCarro(struct Entrada* entrada);
 
-
+/** @brief Finds the position of a car in the queue
+ *
+ *  @param colaCarros list in whiche the search will be performed 
+ *  @param carro to be looked for
+ *  @return position of the car in the list
+ */
 int buscarCarro(GSList *colaCarros, struct Carro* carro);
 
 #endif

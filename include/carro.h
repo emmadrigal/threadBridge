@@ -35,7 +35,11 @@ struct Carro{
 	pthread_t responsibleThread;
 };
 
-
+/** @brief Runs the loop in charge of the cars movement
+ *
+ *  @param car car to be handled
+ *  @return void
+ */
 void *avanzar(void* car);
 
 #endif
