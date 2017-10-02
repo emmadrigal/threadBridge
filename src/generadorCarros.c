@@ -28,7 +28,7 @@ struct GeneradorCarros* crearGenerador(int media, int ambulancias, int radioacti
 	
 	generador->entrada = entrada;
 	
-	pthread_create(&(generador->responsibleThread), NULL, generarCarro, (void*) generador);
+	mypthread_create(&(generador->responsibleThread), NULL, generarCarro, (void*) generador, 0);
 	
 	return generador;
 	
@@ -78,7 +78,7 @@ void *generarCarro(void* generadorParam){
 	
 			agregarCarro(generador->entrada, carro);
 		
-			pthread_create(&(carro->responsibleThread), NULL, avanzar, (void*) carro);
+			mypthread_create(&(carro->responsibleThread), NULL, avanzar, (void*) carro, 0);
 		}
 		else{
 			waitedTime++;

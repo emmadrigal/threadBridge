@@ -36,8 +36,8 @@ void* avanzar(void* car){
 						
 						pthread_t thread = carro->responsibleThread;
 						free(carro);
-						pthread_mutex_unlock(&(carro->puente->puenteLock));
-						pthread_exit(&thread);	
+						mythread_mutex_unlock(&(carro->puente->puenteLock));
+						mythread_exit(&thread);	
 					}
 					//La posición de adelante está libre
 					else if(carro->puente->espacios[carro->position + 1] == 0){
@@ -60,8 +60,8 @@ void* avanzar(void* car){
 						
 						pthread_t thread = carro->responsibleThread;
 						free(carro);
-						pthread_mutex_unlock(&(carro->puente->puenteLock));
-						pthread_exit(&thread);	
+						mythread_mutex_unlock(&(carro->puente->puenteLock));
+						mythread_exit(&thread);	
 					}
 					//La posición de adelante está libre
 					else if(carro->puente->espacios[carro->position - 1] == 0){

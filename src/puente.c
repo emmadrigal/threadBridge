@@ -41,7 +41,7 @@ struct Puente* createPuente(int largo, int tipo[2], int tiempo[2], int maxCarros
 	
 	puente->id = id;
 	
-	pthread_create(&(puente->responsibleThread), NULL, chequearEstado, (void*) puente);
+	mypthread_create(&(puente->responsibleThread), NULL, chequearEstado, (void*) puente, 0);
 	
 	return puente;
 }
@@ -67,37 +67,66 @@ void* chequearEstado(void* bridge){
 			}
 		}
 		
+		unsigned char physSi[15];
+		
+		physSi[0] = g_slist_length(puente->entradaIzquierda->entrada->colaCarros);
+		physSi[1] = g_slist_length(puente->entradaIzquierda->entrada->colaAmbulancias);
+		physSi[2] = g_slist_length(puente->entradaIzquierda->entrada->colaRadioactivos);
+		
 		pthread_mutex_lock(&(printLock));
-		if(puente->entradaIzquierda->entrada->semaforoEntrada == 1)
+		if(puente->entradaIzquierda->entrada->semaforoEntrada == 1){
 			printf(ANSI_COLOR_GREEN"X"ANSI_COLOR_RESET);
-		else
+			physSi[3] = "s";
+		}
+		else{
 			printf(ANSI_COLOR_RED"X"ANSI_COLOR_RESET);
+			physSi[3] = "S";
+		}
 		
 		for(int i = 0; i < puente->largo; i++){
 			if(puente->espacios[i] != 0){
-				if(puente->espacios[i]->tipo == 0)
+				if(puente->espacios[i]->tipo == 0){
 					printf(ANSI_COLOR_YELLOW"C"ANSI_COLOR_RESET);
-				else if(puente->espacios[i]->tipo == 1)
+					physSi[4 + i] = "c";
+				}
+				else if(puente->espacios[i]->tipo == 1){
 					printf(ANSI_COLOR_RED"A"ANSI_COLOR_RESET);
-				else if(puente->espacios[i]->tipo == 2)
+					physSi[4 + i] = "a";
+				}
+				else if(puente->espacios[i]->tipo == 2){
 					printf(ANSI_COLOR_GREEN"R"ANSI_COLOR_RESET);
+					physSi[4 + i] = "r";
+				}
 			}
-			else
+			else{
 				printf("0");
+				physSi[4 + i] = 0;
+			}
 		}
 		
-		if(puente->entradaDerecha->entrada->semaforoEntrada == 1)
+		if(puente->entradaDerecha->entrada->semaforoEntrada == 1){
 			printf(ANSI_COLOR_GREEN"X"ANSI_COLOR_RESET);
-		else
+			physSi[11] = "s";
+		}
+		else{
 			printf(ANSI_COLOR_RED"X"ANSI_COLOR_RESET);
+			physSi[11] = "S";
+		}
 		
 		printf("\n");
 
-		/*
 		printf("Entrada izquierda-> carros: %d\t ambulancias: %d\t radioactivos %d\n", g_slist_length(puente->entradaIzquierda->entrada->colaCarros), g_slist_length(puente->entradaIzquierda->entrada->colaAmbulancias), g_slist_length(puente->entradaIzquierda->entrada->colaRadioactivos));
 		
 		printf("Entrada derecha-> carros: %d\t ambulancias: %d\t radioactivos %d\n\n", g_slist_length(puente->entradaDerecha->entrada->colaCarros), g_slist_length(puente->entradaDerecha->entrada->colaAmbulancias), g_slist_length(puente->entradaDerecha->entrada->colaRadioactivos));
-		*/
+		
+		physSi[12] = g_slist_length(puente->entradaDerecha->entrada->colaCarros);
+		physSi[13] = g_slist_length(puente->entradaDerecha->entrada->colaAmbulancias);
+		physSi[14] = g_slist_length(puente->entradaDerecha->entrada->colaRadioactivos);
+		
+		for(int i = 0; i < 15; i++){
+			printf("%u ", physSi[i]);
+		}
+		printf("\n");
 		
 		pthread_mutex_unlock(&(printLock));
 		//pthread_mutex_unlock(&(puente->puenteLock));

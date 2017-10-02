@@ -36,7 +36,7 @@ struct ControladorEntrada* createControlador(int tipo, int tiempo, int maxCarros
 	controlador->carrosAceptados = 0;
 	controlador->carrosEnviados  = 0;
 	
-	pthread_create(&(controlador->responsibleThread), NULL, updateSemaforo, (void*) controlador);
+	mypthread_create(&(controlador->responsibleThread), NULL, updateSemaforo, (void*) controlador, 0);
 	
 	return controlador;
 }

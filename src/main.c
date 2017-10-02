@@ -37,9 +37,11 @@ int main(int argc, char** argv){
 		return 0;
 	}
 		
-		
+
 	int numBridges = 0;
 	config_lookup_int(&cfg, "application.bridgeNumber", &numBridges);
+	
+	printf("num Puentes %d\n");
 	
 	config_setting_t *setting =  config_lookup(&cfg, "application.puentes");
 			
@@ -54,7 +56,7 @@ int main(int argc, char** argv){
 		int paramsGen[6];
 		
 		const char *left;
-		const char *right	;
+		const char *right;
 		
 		config_setting_t *leftGen = config_setting_get_member(bridge, "generatorLeft");
 		config_setting_t *rightGen = config_setting_get_member(bridge, "generatorRight");
@@ -67,9 +69,11 @@ int main(int argc, char** argv){
 			&& config_setting_lookup_int(bridge, "timeRight",       (tiempo+1))
 			&& config_setting_lookup_int(bridge, "maxCarrosLeft",   (maxCarros))
 			&& config_setting_lookup_int(bridge, "maxCarrosRight",  (maxCarros+1))
+			
 			&& config_setting_lookup_int(leftGen, "time",        (paramsGen))
 			&& config_setting_lookup_int(leftGen, "ambulances",  (paramsGen+1))
 			&& config_setting_lookup_int(leftGen, "radioactive", (paramsGen+2))
+			
 			&& config_setting_lookup_int(rightGen, "time",        (paramsGen+3))
 			&& config_setting_lookup_int(rightGen, "ambulances",  (paramsGen+4))
 			&& config_setting_lookup_int(rightGen, "radioactive", (paramsGen+5))
@@ -92,12 +96,12 @@ int main(int argc, char** argv){
 			tipo[1] = 1;
 		else
 			tipo[1] = 2;
-			
-		printf("%d, %d\n", tipo[0], tipo[1]);
+		
 			
 		createPuente(largo, tipo, tiempo, maxCarros, paramsGen, i);
 
 	}
+
 
     //Run for 1h
     usleep(3600000000);
