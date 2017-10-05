@@ -36,28 +36,26 @@ int main(){
 	else{
 		return 0;
 	}
-		
-
-	int numBridges = 0;
-	config_lookup_int(&cfg, "application.bridgeNumber", &numBridges);
 	
 	config_setting_t *setting =  config_lookup(&cfg, "application.puentes");
-			
+	int numBridges = config_setting_length(setting);
+	
+	int largo;
+	int tipo[2];
+	int tiempo[2];
+	int maxCarros[2];
+	int paramsGen[6];
 
-	for(int i = 0; i < config_setting_length(setting); ++i){
+	const char *sched;
+	unsigned char scheduler;
+
+	const char *left;
+	const char *right;
+	
+	struct Puente** puentes = malloc(numBridges*sizeof(struct Puente*));
+
+	for(int i = 0; i < numBridges; ++i){
 		config_setting_t *bridge = config_setting_get_elem(setting, i);
-
-		int largo;
-		int tipo[2];
-		int tiempo[2];
-		int maxCarros[2];
-		int paramsGen[6];
-		
-		const char *sched;
-		unsigned char scheduler;
-		
-		const char *left;
-		const char *right;
 		
 		config_setting_t *leftGen = config_setting_get_member(bridge, "generatorLeft");
 		config_setting_t *rightGen = config_setting_get_member(bridge, "generatorRight");
@@ -82,47 +80,83 @@ int main(){
 			)){
 				printf("param not found\n");		
 				continue;
-		}
-		printf("creating bridge\n");
-			
-		if(strcmp(left, "traffic light"))
+		}	
+		if(!strcmp(left, "traffic light"))
 			tipo[0] = 0;
-		else if(strcmp(left, "traffic officer"))
+		else if(!strcmp(left, "traffic officer"))
 			tipo[0] = 1;
 		else
 			tipo[0] = 2;
 			
-		if(strcmp(right, "traffic light"))
+		if(!strcmp(right, "traffic light"))
 			tipo[1] = 0;
-		else if(strcmp(right, "traffic officer"))
+		else if(!strcmp(right, "traffic officer"))
 			tipo[1] = 1;
 		else
 			tipo[1] = 2;
 			
-		if(strcmp(sched, "FIFO"))
+		
+		if(!strcmp(sched, "FIFO"))
 			scheduler = 0;
-		else if(strcmp(sched, "PRIORITY"))
+		else if(!strcmp(sched, "PRIORITY"))
 			scheduler = 1;
-		else if(strcmp(sched, "SJF"))
+		else if(!strcmp(sched, "SJF"))
 			scheduler = 2;
-		else if(strcmp(sched, "RR"))
+		else if(!strcmp(sched, "RR"))
 			scheduler = 3;
-		else if(strcmp(sched, "RT"))
+		else if(!strcmp(sched, "RT"))
 			scheduler = 4;
 		else
 			scheduler = 0;
 		
 			
-		createPuente(largo, tipo, tiempo, maxCarros, paramsGen, i, scheduler);
+		puentes[i] = createPuente(largo, tipo, tiempo, maxCarros, paramsGen, i, scheduler);
 
 	}
 	
-	//TODO print bridge loop, used for sending data to the arduino
-
-
-    //Run for 1h
-    usleep(3600000000);
+	//Print bridge loop, used for sending data to the arduino
+	char physSi[3*(largo + 2)];
 	
+	
+	if(numBridges >= 3){
+		while(1){
+			usleep(1000000);//1s
+		
+			for(int i = 0; i < 3; i++){
+				struct Puente* puente = puentes[i];
+		
+				if(puente->entradaIzquierda->entrada->semaforoEntrada)
+					physSi[i*largo] = "s";
+				else
+					physSi[i*largo] = "S";
+			
+				for(int j = 0; j < largo; j++){
+					if(puente->espacios[i] != 0){
+						if(puente->espacios[i]->tipo == 0)
+							physSi[1 + j + i*largo] = "c";
+						else if(puente->espacios[i]->tipo == 1)
+							physSi[1 + j + i*largo] = "a";
+						else if(puente->espacios[i]->tipo == 2)
+							physSi[1 + j + i*largo] = "r";
+					}
+					else
+						physSi[1 + j] = 0;
+				}
+		
+				if(puente->entradaDerecha->entrada->semaforoEntrada)
+					physSi[i*largo - 1] = "s";
+				else
+					physSi[i*largo - 1] = "S";
+			}
+		
+			//TODO enviar datos al arduino
+		}
+	}
+	else{
+		printf("Not enough bridges for physical simulation\n");
+		usleep(3600000000);//Run for 1h
+	}
+		
 	
 	return 0;
 }

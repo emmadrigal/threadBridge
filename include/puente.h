@@ -72,14 +72,23 @@ void* chequearEstado(void* bridge);
  */
 void askSemaforo(struct Puente* puente);
 
-/** @brief 
+/** @brief When a car tries to enter this function checks wheter the car can get on the brdige
  *
- * 
- * 
- * @param 
- * @return 
+ * @param puente where check is being made
+ * @param direccion from where the car is being recieved
+ * @param carro being recieved
+ * @return 1 if success and 0 if failure
  */
 int recibirCarro(struct Puente* puente, char direccion, struct Carro* carro);
+
+/** @brief Checks wherever the resource is available
+ *
+ * @param puente where check is being made
+ * @param direccion from where the car is being recieved
+ * @param current position of the car
+ * @return 1 if success and 0 if failure
+ */
+int checkResource(struct Puente* puente, char direccion, int position);
 
 
 #endif

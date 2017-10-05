@@ -18,9 +18,11 @@ struct Scheduler* createScheduler(unsigned char metodo){
 
 
 void carDone(struct Scheduler* scheduler, struct Carro* carro){
-	//Car is done, must free data??
 	scheduler->colaReady = g_slist_remove(scheduler->colaReady, carro);
+	scheduler->colaWaiting = g_slist_remove(scheduler->colaWaiting, carro);
+
 	scheduler->owner = 0;
+	
 	
 	//If there are cars that can be scheduled
 	if(g_slist_length(scheduler->colaReady) != 0){
@@ -86,7 +88,6 @@ void carDone(struct Scheduler* scheduler, struct Carro* carro){
 
 
 void addCar(struct Scheduler* scheduler, struct Carro* carro){
-	
 	//TODO implementar cola multinivel al poner los carros especiales al principio de la cola
 	
 	if(scheduler->owner == 0){//No car currently using the bridge, whoever asks may pass
@@ -94,19 +95,23 @@ void addCar(struct Scheduler* scheduler, struct Carro* carro){
 		scheduler->colaReady = g_slist_append(scheduler->colaReady, carro);
 	}
 	else//Adds car to ready in order for it to be scheduled when it is ready
+		//scheduler->colaWaiting = g_slist_append(scheduler->colaReady, carro);
 		scheduler->colaReady = g_slist_append(scheduler->colaReady, carro);
 }
 
 //Only works on RR, all others are only called when cars start or end
 void* setCurrentOwner(void* calendarizador){
 	struct Scheduler* scheduler = (struct Scheduler*) calendarizador;
-	
+
 	//Every quantum(needs to get it from the config file) sends the actual to the end of the list and new first is the second
 	int quantum = 100000;//100ms
 	while(1){
+		
 		usleep(quantum);
 		//Only try if the list isn't empty
-		if(g_slist_length(scheduler->colaReady) != 0){	
+		
+		if(g_slist_length(scheduler->colaReady) != 0){
+				
 				//Takes first away from the list
 				scheduler->colaReady = g_slist_remove(scheduler->colaReady, scheduler->owner);
 				
@@ -118,3 +123,27 @@ void* setCurrentOwner(void* calendarizador){
 		}
 	}
 }
+
+
+void downgradeQueue(struct Scheduler* scheduler, struct Carro* carro){
+
+	if(g_slist_find (scheduler->colaReady,  carro) == NULL ){
+		scheduler->colaReady = g_slist_remove(scheduler->colaReady, carro);
+		scheduler->colaWaiting = g_slist_append(scheduler->colaWaiting, carro);
+	}
+	
+}
+
+void upgradeQueue(struct Scheduler* scheduler, struct Carro* carro){
+	//Remove from waiting queue
+	if(g_slist_length(scheduler->colaReady) == 0){
+		scheduler->colaWaiting = g_slist_remove(scheduler->colaWaiting, carro);
+		scheduler->owner = carro;
+	}
+	
+	else if(g_slist_find (scheduler->colaReady,  carro) == NULL ){
+		scheduler->colaWaiting = g_slist_remove(scheduler->colaWaiting, carro);
+		scheduler->colaReady = g_slist_append(scheduler->colaReady, carro);
+	}
+}
+

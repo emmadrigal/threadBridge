@@ -75,56 +75,34 @@ void* chequearEstado(void* bridge){
 			}
 		}
 		
-		char physSi[puente->largo + 2];
 		
 		pthread_mutex_lock(&(printLock));
-		if(puente->entradaIzquierda->entrada->semaforoEntrada == 1){
+		printf("Puente: %d\n", puente->id);
+		if(puente->entradaIzquierda->entrada->semaforoEntrada == 1)
 			printf(ANSI_COLOR_GREEN"X"ANSI_COLOR_RESET);
-			physSi[0] = "s";
-		}
-		else{
+		else
 			printf(ANSI_COLOR_RED"X"ANSI_COLOR_RESET);
-			physSi[0] = "S";
-		}
 		
 		for(int i = 0; i < puente->largo; i++){
 			if(puente->espacios[i] != 0){
-				if(puente->espacios[i]->tipo == 0){
+				if(puente->espacios[i]->tipo == 0)
 					printf(ANSI_COLOR_YELLOW"C"ANSI_COLOR_RESET);
-					physSi[1 + i] = "c";
-				}
-				else if(puente->espacios[i]->tipo == 1){
+				else if(puente->espacios[i]->tipo == 1)
 					printf(ANSI_COLOR_RED"A"ANSI_COLOR_RESET);
-					physSi[1 + i] = "a";
-				}
-				else if(puente->espacios[i]->tipo == 2){
+				else if(puente->espacios[i]->tipo == 2)
 					printf(ANSI_COLOR_GREEN"R"ANSI_COLOR_RESET);
-					physSi[1 + i] = "r";
-				}
 			}
-			else{
+			else
 				printf("0");
-				physSi[1 + i] = 0;
-			}
 		}
 		
-		if(puente->entradaDerecha->entrada->semaforoEntrada == 1){
+		if(puente->entradaDerecha->entrada->semaforoEntrada == 1)
 			printf(ANSI_COLOR_GREEN"X"ANSI_COLOR_RESET);
-			physSi[puente->largo + 1] = "s";
-		}
-		else{
+		else
 			printf(ANSI_COLOR_RED"X"ANSI_COLOR_RESET);
-			physSi[puente->largo + 1] = "S";
-		}
 		
-		printf("\n");
-		
-		/*
-		for(int i = 0; i < puente->largo + 2; i++){
-			printf("%u ", physSi[i]);
-		}
-		printf("\n");
-		*/
+		printf("\n\n");
+
 		
 		pthread_mutex_unlock(&(printLock));
 		//pthread_mutex_unlock(&(puente->puenteLock));
@@ -136,7 +114,6 @@ void* chequearEstado(void* bridge){
 int recibirCarro(struct Puente* puente, char direccion, struct Carro* carro){
 
 	int out = 0;
-
 	if(puente->flujo == 0){//Si no hay carros en el puente
 
 		//Si se recibe un carro de la derecha
@@ -157,14 +134,14 @@ int recibirCarro(struct Puente* puente, char direccion, struct Carro* carro){
 		//Carros moviendose de izquierda a derecha
 		if(puente->flujo == -1){
 			//Si no hay un carro en la primera dirección
-			if(puente->espacios[0] != 0){
+			if(puente->espacios[0] == 0){
 				puente->espacios[0]	 = carro;
 				out =  1;
 			}
 		}
 		else if(puente->flujo == 1){
 			//Si no hay un carro en la primera dirección
-			if(puente->espacios[puente->largo -  1] != 0){
+			if(puente->espacios[puente->largo -  1] == 0){
 				puente->espacios[puente->largo - 1] = carro;
 				out =  1;
 			}
@@ -175,6 +152,46 @@ int recibirCarro(struct Puente* puente, char direccion, struct Carro* carro){
 	//pthread_mutex_unlock(&(puente->puenteLock));
 	
 	return out;
+}
+
+int checkResource(struct Puente* puente, char direccion, int position){
+	//Car outside of the bridge
+	if(position < 0){
+		//There are no cars on the bridge
+		if(puente->flujo == 0)//Si no hay carros en el puente
+			return 1;
+		//Car wants to go in the same direction that the bridge is running: RIGHT and the light is on
+		else if((puente->flujo == -1) && (puente->flujo == direccion) && (puente->entradaDerecha->entrada->semaforoEntrada)){
+			//Si no hay un carro en la primera dirección
+			if(puente->espacios[0] == 0)
+				return 1;
+		}
+		//Car wants to go in the same direction that the bridge is running: LEFT
+		else if((puente->flujo == 1) && (puente->flujo == direccion) && (puente->entradaIzquierda->entrada->semaforoEntrada)){
+			//Si no hay un carro en la primera dirección
+			if(puente->espacios[puente->largo -  1] == 0)
+				return 1;
+		}
+		else{
+			return 0;
+		}
+	}
+	
+	//Car on of the bridge
+	else{
+		if(puente->flujo == -1){
+			//Si no hay un carro en la primera dirección
+			if(puente->espacios[position - 1] == 0)
+				return 1;
+		}
+		else if(puente->flujo == 1){
+			//Si no hay un carro en la primera dirección
+			if(puente->espacios[position + 1] == 0)
+				return 1;
+		}
+		else
+			return 0;
+	}
 }
 
 
