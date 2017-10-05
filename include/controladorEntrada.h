@@ -17,9 +17,12 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <pthread.h>
+
 
 #include <puente.h>
 #include <entrada.h>
+#include <sched.h>
 
 
 /** 
@@ -53,7 +56,7 @@ struct ControladorEntrada{
  *  @param paramsGen Params for the generation of either side, this include median, % of ambulances and % of radioactive cars
  *  @return pointer to the created structure
  */
-struct ControladorEntrada* createControlador(int tipo, int tiempo, int maxCarros, struct Puente* puente, int paramsGen[3], char lado);
+struct ControladorEntrada* createControlador(int tipo, int tiempo, int maxCarros, struct Puente* puente, int paramsGen[3], char lado, struct Scheduler* scheduler);
 
 /**
  * @brief Control loop

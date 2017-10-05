@@ -38,6 +38,8 @@ struct GeneradorCarros{
 	struct Entrada* entrada;
 	struct Puente* puente;
 	
+	struct Scheduler* scheduler;
+	
 	pthread_t responsibleThread; /**< Thread in charge of this object */
 };
 
@@ -49,7 +51,7 @@ struct GeneradorCarros{
  *  @param entrada pointer to the entrance where the cars will be added
  *  @return pointer to the created structure
  */
-struct GeneradorCarros* crearGenerador(int media, int ambulancias, int radioactivos, struct Entrada* entrada, struct Puente* bridge);
+struct GeneradorCarros* crearGenerador(int media, int ambulancias, int radioactivos, struct Entrada* entrada, struct Puente* bridge, struct Scheduler* scheduler);
 
 /** @brief generates new cars into an entrance
  *

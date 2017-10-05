@@ -26,22 +26,30 @@
 
 
 
-struct Puente* createPuente(int largo, int tipo[2], int tiempo[2], int maxCarros[2], int paramsGen[6], int id){
+struct Puente* createPuente(int largo, int tipo[2], int tiempo[2], int maxCarros[2], int paramsGen[6], int id, unsigned char method){
 	struct Puente* puente = malloc(sizeof(struct Puente));
 	puente->largo = largo;
 	puente->flujo = 0;
 	
+	//TODO get value from config file
+	struct Scheduler* scheduler = createScheduler(method);
+	
+	//If scheduler is RR, start thread
+	if(method == 3){
+		pthread_create(&(scheduler->responsibleThread), NULL, setCurrentOwner, (void*) scheduler);
+	}
 	
 	
-	puente->entradaIzquierda = createControlador(tipo[0], tiempo[0], maxCarros[0], puente, paramsGen,        1);
-	puente->entradaDerecha   = createControlador(tipo[1], tiempo[1], maxCarros[1], puente, (paramsGen + 3), -1);
+	puente->entradaIzquierda = createControlador(tipo[0], tiempo[0], maxCarros[0], puente, paramsGen,        1, scheduler);
+	puente->entradaDerecha   = createControlador(tipo[1], tiempo[1], maxCarros[1], puente, (paramsGen + 3), -1, scheduler);
 	
 	//Esto es una serie de punteros hacia los carros
 	puente->espacios = calloc(sizeof(struct Carro*)*largo, largo);
 	
 	puente->id = id;
 	
-	mypthread_create(&(puente->responsibleThread), NULL, chequearEstado, (void*) puente, 0);
+	//mypthread_create(&(puente->responsibleThread), NULL, chequearEstado, (void*) puente, 0);
+	pthread_create(&(puente->responsibleThread), NULL, chequearEstado, (void*) puente);
 	
 	return puente;
 }
@@ -67,66 +75,56 @@ void* chequearEstado(void* bridge){
 			}
 		}
 		
-		unsigned char physSi[15];
-		
-		physSi[0] = g_slist_length(puente->entradaIzquierda->entrada->colaCarros);
-		physSi[1] = g_slist_length(puente->entradaIzquierda->entrada->colaAmbulancias);
-		physSi[2] = g_slist_length(puente->entradaIzquierda->entrada->colaRadioactivos);
+		char physSi[puente->largo + 2];
 		
 		pthread_mutex_lock(&(printLock));
 		if(puente->entradaIzquierda->entrada->semaforoEntrada == 1){
 			printf(ANSI_COLOR_GREEN"X"ANSI_COLOR_RESET);
-			physSi[3] = "s";
+			physSi[0] = "s";
 		}
 		else{
 			printf(ANSI_COLOR_RED"X"ANSI_COLOR_RESET);
-			physSi[3] = "S";
+			physSi[0] = "S";
 		}
 		
 		for(int i = 0; i < puente->largo; i++){
 			if(puente->espacios[i] != 0){
 				if(puente->espacios[i]->tipo == 0){
 					printf(ANSI_COLOR_YELLOW"C"ANSI_COLOR_RESET);
-					physSi[4 + i] = "c";
+					physSi[1 + i] = "c";
 				}
 				else if(puente->espacios[i]->tipo == 1){
 					printf(ANSI_COLOR_RED"A"ANSI_COLOR_RESET);
-					physSi[4 + i] = "a";
+					physSi[1 + i] = "a";
 				}
 				else if(puente->espacios[i]->tipo == 2){
 					printf(ANSI_COLOR_GREEN"R"ANSI_COLOR_RESET);
-					physSi[4 + i] = "r";
+					physSi[1 + i] = "r";
 				}
 			}
 			else{
 				printf("0");
-				physSi[4 + i] = 0;
+				physSi[1 + i] = 0;
 			}
 		}
 		
 		if(puente->entradaDerecha->entrada->semaforoEntrada == 1){
 			printf(ANSI_COLOR_GREEN"X"ANSI_COLOR_RESET);
-			physSi[11] = "s";
+			physSi[puente->largo + 1] = "s";
 		}
 		else{
 			printf(ANSI_COLOR_RED"X"ANSI_COLOR_RESET);
-			physSi[11] = "S";
+			physSi[puente->largo + 1] = "S";
 		}
 		
 		printf("\n");
-
-		printf("Entrada izquierda-> carros: %d\t ambulancias: %d\t radioactivos %d\n", g_slist_length(puente->entradaIzquierda->entrada->colaCarros), g_slist_length(puente->entradaIzquierda->entrada->colaAmbulancias), g_slist_length(puente->entradaIzquierda->entrada->colaRadioactivos));
 		
-		printf("Entrada derecha-> carros: %d\t ambulancias: %d\t radioactivos %d\n\n", g_slist_length(puente->entradaDerecha->entrada->colaCarros), g_slist_length(puente->entradaDerecha->entrada->colaAmbulancias), g_slist_length(puente->entradaDerecha->entrada->colaRadioactivos));
-		
-		physSi[12] = g_slist_length(puente->entradaDerecha->entrada->colaCarros);
-		physSi[13] = g_slist_length(puente->entradaDerecha->entrada->colaAmbulancias);
-		physSi[14] = g_slist_length(puente->entradaDerecha->entrada->colaRadioactivos);
-		
-		for(int i = 0; i < 15; i++){
+		/*
+		for(int i = 0; i < puente->largo + 2; i++){
 			printf("%u ", physSi[i]);
 		}
 		printf("\n");
+		*/
 		
 		pthread_mutex_unlock(&(printLock));
 		//pthread_mutex_unlock(&(puente->puenteLock));

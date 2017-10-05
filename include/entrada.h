@@ -16,19 +16,20 @@
 #define _ENTRADA_H_
 
 #include <stdlib.h>
-#include <stdio.h>
-
 #include <glib.h>
+
+#include <puente.h>
 #include <carro.h>
 #include <generadorCarros.h>
+#include <sched.h>
+
+struct Puente;
+struct Carro;
 
 /** 
  *  @brief structure containing the variables for this object
  */
 struct Entrada{
-	GSList *colaCarros;                /**< Queue of cars waiting in this queue */
-	GSList *colaAmbulancias;                /**< Queue of cars waiting in this queue */
-	GSList *colaRadioactivos;                /**< Queue of cars waiting in this queue */
 	unsigned char semaforoEntrada;     /**< Light indicating if currently advence is allowed; 0 is red and 1 is green */
 	struct GeneradorCarros* generador; /**< pointer to the generator adding cars to this entrance */
 	
@@ -43,30 +44,7 @@ struct Entrada{
  *  @param paramsGen Params for the generation of either side, this include median, % of ambulances and % of radioactive cars
  *  @return pointer to the created structure
  */
-struct Entrada* crearEntrada(int paramsGen[3], struct Puente* puente, struct ControladorEntrada* controlador);
+struct Entrada* crearEntrada(int paramsGen[3], struct Puente* puente, struct Scheduler* scheduler, struct ControladorEntrada* ctrl);
 
-
-/** @brief Adds a new car into the queue
- *
- *  @param entrada pointer to the bridge connect to this entrance
- *  @param carro car being added to this queue
- *  @return void
- */
-void agregarCarro(struct Entrada* entrada, struct Carro* carro);
-
-/** @brief Gets the first car on the queue
- *
- *  @param entrada whose data is being used
- *  @return car with the highest priority
- */
-struct Carro* getCarro(struct Entrada* entrada);
-
-/** @brief Finds the position of a car in the queue
- *
- *  @param colaCarros list in whiche the search will be performed 
- *  @param carro to be looked for
- *  @return position of the car in the list
- */
-int buscarCarro(GSList *colaCarros, struct Carro* carro);
 
 #endif

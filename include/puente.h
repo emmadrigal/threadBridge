@@ -21,6 +21,7 @@
 
 #include <controladorEntrada.h>
 #include <carro.h>
+#include <sched.h>
 
 //Solo un puente puede imprimir a la vez
 pthread_mutex_t printLock;
@@ -50,7 +51,7 @@ struct Puente{
  *  @param paramsGen Params for the generation of either side, this include median, % of ambulances and % of radioactive cars
  *  @return pointer to the created structure
  */
-struct Puente* createPuente(int largo, int tipo[2], int tiempo[2], int maxCarros[2], int paramsGen[6], int id);
+struct Puente* createPuente(int largo, int tipo[2], int tiempo[2], int maxCarros[2], int paramsGen[6], int id, unsigned char method);
 
 
 /** @brief Iterates through the bridge and sets its state to empty if that's the case
@@ -70,6 +71,15 @@ void* chequearEstado(void* bridge);
  * @return void
  */
 void askSemaforo(struct Puente* puente);
+
+/** @brief 
+ *
+ * 
+ * 
+ * @param 
+ * @return 
+ */
+int recibirCarro(struct Puente* puente, char direccion, struct Carro* carro);
 
 
 #endif

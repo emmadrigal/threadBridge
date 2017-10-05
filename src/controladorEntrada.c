@@ -14,11 +14,13 @@
 
 #include <controladorEntrada.h>
 
-struct ControladorEntrada* createControlador(int tipo, int tiempo, int maxCarros, struct Puente* puente, int paramsGen[3], char lado){
+struct ControladorEntrada* createControlador(int tipo, int tiempo, int maxCarros, struct Puente* puente, int paramsGen[3], char lado, struct Scheduler* scheduler){
 	struct ControladorEntrada* controlador = malloc(sizeof(struct ControladorEntrada));
 	
 	controlador->puente  = puente;
-	controlador->entrada = crearEntrada(paramsGen, puente, controlador);
+	
+	//TODO give copy of scheduler
+	controlador->entrada = crearEntrada(paramsGen, puente, scheduler, controlador);
 	controlador->side    = lado;
 	
 	controlador->tipo      = tipo;
@@ -36,7 +38,8 @@ struct ControladorEntrada* createControlador(int tipo, int tiempo, int maxCarros
 	controlador->carrosAceptados = 0;
 	controlador->carrosEnviados  = 0;
 	
-	mypthread_create(&(controlador->responsibleThread), NULL, updateSemaforo, (void*) controlador, 0);
+	//mypthread_create(&(controlador->responsibleThread), NULL, updateSemaforo, (void*) controlador);
+	pthread_create(&(controlador->responsibleThread), NULL, updateSemaforo, (void*) controlador);
 	
 	return controlador;
 }
@@ -107,15 +110,7 @@ char enviarCarro(struct ControladorEntrada* ctrl, struct Carro* carro){
 	char aceptado = recibirCarro(ctrl->puente, ctrl->side, carro);
 
 	//FIXME this could be done in a function inside entrada
-	if(aceptado){
-		//Clears object from the corresponding queue
-		if(carro->tipo == 2)
-			ctrl->entrada->colaRadioactivos = g_slist_remove(ctrl->entrada->colaRadioactivos,  carro);
-		else if(carro->tipo == 1)
-			ctrl->entrada->colaAmbulancias = g_slist_remove(ctrl->entrada->colaAmbulancias, carro);
-		else if(carro->tipo == 0)
-			ctrl->entrada->colaCarros = g_slist_remove(ctrl->entrada->colaCarros, carro);
-		
+	if(aceptado){		
 		//Indicar al carro que ahora se encuentra en la primera posición de espera
 		if(ctrl->side == 1){
 			carro->position = 0;

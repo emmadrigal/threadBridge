@@ -14,6 +14,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 
 #include <libconfig.h>
 
@@ -21,8 +22,7 @@
 #include <puente.h>
 
 
-int main(int argc, char** argv){
-
+int main(){
 	config_t cfg;	
 	
 	config_init(&cfg);
@@ -41,8 +41,6 @@ int main(int argc, char** argv){
 	int numBridges = 0;
 	config_lookup_int(&cfg, "application.bridgeNumber", &numBridges);
 	
-	printf("num Puentes %d\n");
-	
 	config_setting_t *setting =  config_lookup(&cfg, "application.puentes");
 			
 
@@ -55,6 +53,9 @@ int main(int argc, char** argv){
 		int maxCarros[2];
 		int paramsGen[6];
 		
+		const char *sched;
+		unsigned char scheduler;
+		
 		const char *left;
 		const char *right;
 		
@@ -63,6 +64,7 @@ int main(int argc, char** argv){
 
 
 		if(!(config_setting_lookup_int(bridge, "largo", &largo)
+			&& config_setting_lookup_string(bridge, "scheduler",  &sched)
 			&& config_setting_lookup_string(bridge, "controllerLeft",  &left)
 			&& config_setting_lookup_string(bridge, "controllerRight", &right)
 			&& config_setting_lookup_int(bridge, "timeLeft",        (tiempo))
@@ -96,11 +98,26 @@ int main(int argc, char** argv){
 			tipo[1] = 1;
 		else
 			tipo[1] = 2;
+			
+		if(strcmp(sched, "FIFO"))
+			scheduler = 0;
+		else if(strcmp(sched, "PRIORITY"))
+			scheduler = 1;
+		else if(strcmp(sched, "SJF"))
+			scheduler = 2;
+		else if(strcmp(sched, "RR"))
+			scheduler = 3;
+		else if(strcmp(sched, "RT"))
+			scheduler = 4;
+		else
+			scheduler = 0;
 		
 			
-		createPuente(largo, tipo, tiempo, maxCarros, paramsGen, i);
+		createPuente(largo, tipo, tiempo, maxCarros, paramsGen, i, scheduler);
 
 	}
+	
+	//TODO print bridge loop, used for sending data to the arduino
 
 
     //Run for 1h

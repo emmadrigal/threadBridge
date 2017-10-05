@@ -15,7 +15,7 @@
 
 #include <generadorCarros.h>
 
-struct GeneradorCarros* crearGenerador(int media, int ambulancias, int radioactivos, struct Entrada* entrada, struct Puente* bridge){
+struct GeneradorCarros* crearGenerador(int media, int ambulancias, int radioactivos, struct Entrada* entrada, struct Puente* bridge, struct Scheduler* scheduler){
 	struct GeneradorCarros* generador = malloc(sizeof(struct GeneradorCarros));
 	
 	//TODO checkear que lambda sea mayor a 0
@@ -28,7 +28,10 @@ struct GeneradorCarros* crearGenerador(int media, int ambulancias, int radioacti
 	
 	generador->entrada = entrada;
 	
-	mypthread_create(&(generador->responsibleThread), NULL, generarCarro, (void*) generador, 0);
+	generador->scheduler = scheduler;
+	
+	//mypthread_create(&(generador->responsibleThread), NULL, generarCarro, (void*) generador, 0);
+	pthread_create(&(generador->responsibleThread), NULL, generarCarro, (void*) generador);
 	
 	return generador;
 	
@@ -61,24 +64,34 @@ void *generarCarro(void* generadorParam){
 			//Generate a number between 0 and 99
 			char percentageCar = rand() % 100;
 			
-			if(percentageCar < generador->ambulancias)
+			if(percentageCar < generador->ambulancias){
 				carro->tipo =  1;
-			else if(percentageCar >= (100 - generador->radioactivos))
+				carro->prioridad = 30;
+			}
+			else if(percentageCar >= (100 - generador->radioactivos)){
 				carro->tipo =  2;
-			else
+				carro->prioridad = 20;
+			}
+			else{
 				carro->tipo =  0;
+				carro->prioridad = 40;
+			}
 			
 			carro->velocidad = rand() % (velocidadMedia*2) + 1;
 		
-			carro->puente = generador->puente;
-			carro->entrada = generador->entrada;
+			carro->puente    = generador->puente;
+			carro->entrada   = generador->entrada;
+			carro->scheduler = generador->scheduler;
+			
+			//TODO prioridad inicial es 20 para radioactivos, 30 para ambulancias y 40 para carros
 		
 			//Inicia fuera en una entrada
 			carro->position = -1;
 	
-			agregarCarro(generador->entrada, carro);
+			addCar(carro->scheduler, carro);
 		
-			mypthread_create(&(carro->responsibleThread), NULL, avanzar, (void*) carro, 0);
+			//mypthread_create(&(carro->responsibleThread), NULL, avanzar, (void*) carro, 0);
+			pthread_create(&(carro->responsibleThread), NULL, avanzar, (void*) carro);
 		}
 		else{
 			waitedTime++;

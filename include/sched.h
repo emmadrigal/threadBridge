@@ -16,6 +16,9 @@
 #define _SCHED_H_
 
 #include <glib.h>
+#include <stdlib.h>
+
+#include <carro.h>
 
 /** 
  *  @brief structure containing the variables for this object
@@ -27,28 +30,38 @@ struct Scheduler{
 	void* owner;			  /**< Represents the car currently owning the processor */
 	
 	unsigned char method; /**< Holds the method that handles this process */
+	
+	pthread_t responsibleThread; /**< Thread in charge of this object */
 };
 
-/** @brief 
- *
- *  @param 
- *  @return void
- */
-void carDone(struct Scheduler* scheduler);
 
 /** @brief 
  *
  *  @param 
  *  @return void
  */
-void addCar(struct Scheduler* scheduler);
+struct Scheduler* createScheduler(unsigned char metodo);
 
 /** @brief 
  *
  *  @param 
  *  @return void
  */
-void* setCurrentOwner(struct Scheduler* scheduler);
+void carDone(struct Scheduler* scheduler, struct Carro* carro);
+
+/** @brief 
+ *
+ *  @param 
+ *  @return void
+ */
+void addCar(struct Scheduler* scheduler, struct Carro* carro);
+
+/** @brief 
+ *
+ *  @param 
+ *  @return void
+ */
+void* setCurrentOwner(void* calendarizador);
 
 
 #endif

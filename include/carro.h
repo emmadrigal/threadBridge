@@ -25,10 +25,13 @@
 struct Carro{
 	int velocidad;          /**< Speed of this car in number of car lenghts */
 	unsigned char tipo;     /**< Type of car; 0 is normal, 1 is ambulance and 2 is radioactive*/
-	int position; /**< Type of car; 0 is normal, 1 is ambulance and 2 is radioactive*/
+	int position;           /**< Type of car; 0 is normal, 1 is ambulance and 2 is radioactive*/
+	int prioridad;			/**< Starts at 20 for radioactive, 30 for ambulances and 40 for regular cars*/
 	
 	struct Puente*  puente;
 	struct Entrada* entrada;
+	
+	struct Scheduler* scheduler;
 	
 	char direccion;			/**< 1 es de izquierda a derecha y -1 es viceversa */
 	
