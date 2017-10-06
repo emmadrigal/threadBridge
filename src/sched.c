@@ -71,8 +71,19 @@ void carDone(struct Scheduler* scheduler, struct Carro* carro){
 				break;
 			}
 			case 4:{ //RT
-				//Goes though all cars, EDF and if no deadline FIFO
-				//TODO iterate over all cars and if it has deadline(Radioactive or Ambulance)
+				//Look for the car with the earliest deadline
+				struct Carro* ED = scheduler->colaReady->data;
+			
+				GSList* iterator = scheduler->colaReady;
+
+				for (; iterator; iterator = iterator->next) {
+					struct Carro* tmp = iterator->data;
+					if(tmp->velocidad > ED->velocidad){
+						ED = iterator->data;
+					}
+				}
+			
+				scheduler->owner = ED;
 				break;
 			}
 			default:{
@@ -126,8 +137,8 @@ void* setCurrentOwner(void* calendarizador){
 
 
 void downgradeQueue(struct Scheduler* scheduler, struct Carro* carro){
-
-	if(g_slist_find (scheduler->colaReady,  carro) == NULL ){
+	//Remove from ready queue
+	if(g_slist_find (scheduler->colaWaiting,  carro) == NULL ){ //This check is to avoid putting it twice in the waiting queue
 		scheduler->colaReady = g_slist_remove(scheduler->colaReady, carro);
 		scheduler->colaWaiting = g_slist_append(scheduler->colaWaiting, carro);
 	}
@@ -135,13 +146,14 @@ void downgradeQueue(struct Scheduler* scheduler, struct Carro* carro){
 }
 
 void upgradeQueue(struct Scheduler* scheduler, struct Carro* carro){
-	//Remove from waiting queue
+	//If there are no processes put it as the owner
 	if(g_slist_length(scheduler->colaReady) == 0){
 		scheduler->colaWaiting = g_slist_remove(scheduler->colaWaiting, carro);
 		scheduler->owner = carro;
 	}
 	
-	else if(g_slist_find (scheduler->colaReady,  carro) == NULL ){
+	//Remove from waiting queue
+	else if(g_slist_find (scheduler->colaReady,  carro) == NULL ){ //This check is to avoid putting it twice in the ready queue
 		scheduler->colaWaiting = g_slist_remove(scheduler->colaWaiting, carro);
 		scheduler->colaReady = g_slist_append(scheduler->colaReady, carro);
 	}

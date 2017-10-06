@@ -23,7 +23,6 @@ void* avanzar(void* car){
 	while(1){
 		usleep(quantum);
 		
-		//printf("%p\t%p\t %d\n", carro->scheduler->owner,  carro, (carro->scheduler->owner == carro));
 		//Car is on the ready queue
 		if(carro->scheduler->owner == carro){
 			//If not on bridge
