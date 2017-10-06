@@ -115,8 +115,7 @@ int main(){
 	}
 	
 	//Print bridge loop, used for sending data to the arduino
-	char physSi[3*(largo + 2)];
-	
+	unsigned char physSi[3*(largo + 2)];
 	
 	if(numBridges >= 3){
 		while(1){
@@ -126,30 +125,30 @@ int main(){
 				struct Puente* puente = puentes[i];
 		
 				if(puente->entradaIzquierda->entrada->semaforoEntrada)
-					physSi[i*largo] = "s";
+					physSi[i*(largo + 2)] = 's';
 				else
-					physSi[i*largo] = "S";
+					physSi[i*(largo + 2)] = 's';
 			
 				for(int j = 0; j < largo; j++){
-					if(puente->espacios[i] != 0){
-						if(puente->espacios[i]->tipo == 0)
-							physSi[1 + j + i*largo] = "c";
-						else if(puente->espacios[i]->tipo == 1)
-							physSi[1 + j + i*largo] = "a";
-						else if(puente->espacios[i]->tipo == 2)
-							physSi[1 + j + i*largo] = "r";
+					if(puente->espacios[j] != 0){
+						if(puente->espacios[j]->tipo == 0)
+							physSi[1 + j + i*(largo + 2)] = 'c';
+						else if(puente->espacios[j]->tipo == 1)
+							physSi[1 + j + i*(largo + 2)] = 'a';
+						else if(puente->espacios[j]->tipo == 2)
+							physSi[1 + j + i*(largo + 2)] = 'r';
 					}
 					else
-						physSi[1 + j] = 0;
+						physSi[1 + j + i*(largo + 2)] = '0';
 				}
 		
 				if(puente->entradaDerecha->entrada->semaforoEntrada)
-					physSi[i*largo - 1] = "s";
+					physSi[i*(largo + 2) + largo + 1] = 's';
 				else
-					physSi[i*largo - 1] = "S";
+					physSi[i*(largo + 2) + largo  + 1] = 'S';
 			}
-		
-			//TODO enviar datos al arduino
+			
+			printf("\n%s\n", physSi);	
 		}
 	}
 	else{
